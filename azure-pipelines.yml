@@ -13,8 +13,9 @@ variables:
   dockerRegistryServiceConnection: '2ac039c0-f20a-443e-87f8-b65849454760'
   imageRepository: 'msfhirserver'
   containerRegistry: 'bthealthdiaryrelease.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/build/docker/Dockerfile'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
+  arguments: --build-arg FHIR_VERSION=R4
   
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
