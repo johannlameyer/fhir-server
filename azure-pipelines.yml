@@ -15,6 +15,7 @@ variables:
   containerRegistry: 'bthealthdiaryrelease.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
+  arguments: --build-arg FHIR_VERSION=R4
   
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
