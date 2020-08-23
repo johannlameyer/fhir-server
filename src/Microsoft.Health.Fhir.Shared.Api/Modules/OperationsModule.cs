@@ -7,6 +7,7 @@ using EnsureThat;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Health.Extensions.DependencyInjection;
 using Microsoft.Health.Fhir.Core.Features.Operations.Export;
+using Microsoft.Health.Fhir.Core.Features.Operations.Reindex;
 
 namespace Microsoft.Health.Fhir.Api.Modules
 {
@@ -18,6 +19,10 @@ namespace Microsoft.Health.Fhir.Api.Modules
         public void Load(IServiceCollection services)
         {
             EnsureArg.IsNotNull(services, nameof(services));
+
+            services.Add<GroupMemberExtractor>()
+                .Singleton()
+                .AsService<IGroupMemberExtractor>();
 
             services.Add<ExportJobTask>()
                 .Transient()
@@ -35,6 +40,21 @@ namespace Microsoft.Health.Fhir.Api.Modules
             services.Add<ResourceToNdjsonBytesSerializer>()
                 .Singleton()
                 .AsService<IResourceToByteArraySerializer>();
+
+            services.Add<ReindexJobTask>()
+                .Transient()
+                .AsSelf();
+
+            services.Add<IReindexJobTask>(sp => sp.GetRequiredService<ReindexJobTask>())
+                .Transient()
+                .AsSelf()
+                .AsFactory();
+
+            services.Add<ReindexJobWorker>()
+                .Singleton()
+                .AsSelf();
+
+            services.AddSingleton<IReindexUtilities, ReindexUtilities>();
         }
     }
 }

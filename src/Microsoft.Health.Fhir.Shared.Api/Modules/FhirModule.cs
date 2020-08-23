@@ -5,24 +5,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using EnsureThat;
 using Hl7.Fhir.FhirPath;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Hl7.FhirPath;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Health.Core.Features.Security;
 using Microsoft.Health.Extensions.DependencyInjection;
 using Microsoft.Health.Fhir.Api.Configs;
 using Microsoft.Health.Fhir.Api.Features.ContentTypes;
 using Microsoft.Health.Fhir.Api.Features.Context;
 using Microsoft.Health.Fhir.Api.Features.Filters;
 using Microsoft.Health.Fhir.Api.Features.Formatters;
-using Microsoft.Health.Fhir.Api.Features.Security;
 using Microsoft.Health.Fhir.Core.Extensions;
 using Microsoft.Health.Fhir.Core.Features;
 using Microsoft.Health.Fhir.Core.Features.Conformance;
@@ -95,7 +93,10 @@ namespace Microsoft.Health.Fhir.Api.Modules
                 };
             });
 
-            services.AddSingleton<ResourceDeserializer>();
+            services.Add<ResourceDeserializer>()
+                    .Singleton()
+                    .AsSelf()
+                    .AsService<IResourceDeserializer>();
 
             services.Add<FormatterConfiguration>()
                 .Singleton()
@@ -107,6 +108,7 @@ namespace Microsoft.Health.Fhir.Api.Modules
             services.AddSingleton<ValidateContentTypeFilterAttribute>();
             services.AddSingleton<ValidateExportRequestFilterAttribute>();
             services.AddSingleton<ValidationQueryFilterAndParameterParserAttribute>();
+            services.AddSingleton<ValidateReindexRequestFilterAttribute>();
 
             // Support for resolve()
             FhirPathCompiler.DefaultSymbolTable.AddFhirExtensions();

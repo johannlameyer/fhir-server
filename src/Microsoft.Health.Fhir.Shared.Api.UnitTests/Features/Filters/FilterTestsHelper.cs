@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Health.Fhir.Api.Configs;
 using Microsoft.Health.Fhir.Api.Controllers;
 using Microsoft.Health.Fhir.Core.Configs;
-using Microsoft.Health.Fhir.Tests.Common;
+using Microsoft.Health.Test.Utilities;
 
 namespace Microsoft.Health.Fhir.Api.UnitTests.Features.Filters
 {
@@ -20,7 +20,7 @@ namespace Microsoft.Health.Fhir.Api.UnitTests.Features.Filters
 
         public static ExportController CreateMockExportController()
         {
-            return Mock.TypeWithArguments<ExportController>(Options.Create(new OperationsConfiguration()));
+            return Mock.TypeWithArguments<ExportController>(Options.Create(new OperationsConfiguration()), Options.Create(new FeatureConfiguration()));
         }
     }
 }

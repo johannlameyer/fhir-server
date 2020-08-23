@@ -49,5 +49,21 @@ namespace Microsoft.Health.Fhir.Core.Features
         /// </summary>
         /// <remarks>Specifies if the total number of matching search results should be included in the returned Bundle.</remarks>
         public const string Total = "_total";
+
+        public const string List = "_list";
+
+        public const string Id = "_id";
+
+        public const string Type = "_type";
+
+        public const string Container = "_container";
+
+        /// <summary>
+        /// The anonymization configuration
+        /// </summary>
+        /// <remarks>The anonymization configuration location and addition information. </remarks>
+        public const string AnonymizationConfigurationLocation = "_anonymizationConfig";
+
+        public const string AnonymizationConfigurationFileEtag = "_anonymizationConfigEtag";
     }
 }

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using EnsureThat;
 using MediatR;
-using Microsoft.Health.Core;
 using Microsoft.Health.Extensions.DependencyInjection;
 using Microsoft.Health.Fhir.Core.Features.Definition;
 using Microsoft.Health.Fhir.Core.Features.Search.Parameters;
@@ -44,7 +43,6 @@ namespace Microsoft.Health.Fhir.Core.Features.Search.Registry
         public async Task EnsureInitialized()
         {
             var updated = new List<SearchParameterInfo>();
-            var newParameters = new List<ResourceSearchParameterStatus>();
 
             var parameters = (await _searchParameterRegistry.GetSearchParameterStatuses())
                 .ToDictionary(x => x.Uri);
@@ -56,46 +54,42 @@ namespace Microsoft.Health.Fhir.Core.Features.Search.Registry
                 {
                     bool isSearchable = result.Status == SearchParameterStatus.Enabled;
                     bool isSupported = result.Status != SearchParameterStatus.Disabled;
+                    bool isPartiallySupported = result.IsPartiallySupported;
 
                     if (result.Status == SearchParameterStatus.Disabled)
                     {
                         // Re-check if this parameter is now supported.
-                        isSupported = _searchParameterSupportResolver.IsSearchParameterSupported(p);
+                        (bool Supported, bool IsPartiallySupported) supportedResult = _searchParameterSupportResolver.IsSearchParameterSupported(p);
+                        isSupported = supportedResult.Supported;
+                        isPartiallySupported = supportedResult.IsPartiallySupported;
                     }
 
                     if (p.IsSearchable != isSearchable ||
                         p.IsSupported != isSupported ||
-                        p.IsPartiallySupported != result.IsPartiallySupported)
+                        p.IsPartiallySupported != isPartiallySupported)
                     {
                         p.IsSearchable = isSearchable;
                         p.IsSupported = isSupported;
-                        p.IsPartiallySupported = result.IsPartiallySupported;
+                        p.IsPartiallySupported = isPartiallySupported;
 
                         updated.Add(p);
                     }
                 }
                 else
                 {
-                    newParameters.Add(new ResourceSearchParameterStatus
-                    {
-                        Uri = p.Url,
-                        LastUpdated = Clock.UtcNow,
-                        Status = SearchParameterStatus.Supported,
-                    });
-
                     p.IsSearchable = false;
 
                     // Check if this parameter is now supported.
-                    p.IsSupported = _searchParameterSupportResolver.IsSearchParameterSupported(p);
+                    (bool Supported, bool IsPartiallySupported) supportedResult = _searchParameterSupportResolver.IsSearchParameterSupported(p);
+                    p.IsSupported = supportedResult.Supported;
+                    p.IsPartiallySupported = supportedResult.IsPartiallySupported;
 
                     updated.Add(p);
                 }
             }
 
-            if (newParameters.Any())
-            {
-                await _searchParameterRegistry.UpdateStatuses(newParameters);
-            }
+            var searchParameterHashValue = SearchHelperUtilities.CalculateSearchParameterHash(parameters.Values);
+            await _mediator.Publish(new SearchParametersHashUpdated(searchParameterHashValue));
 
             await _mediator.Publish(new SearchParametersUpdated(updated));
         }

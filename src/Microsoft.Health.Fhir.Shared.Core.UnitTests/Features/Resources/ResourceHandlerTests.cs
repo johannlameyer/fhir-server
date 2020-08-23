@@ -29,6 +29,7 @@ using Microsoft.Health.Fhir.Core.Features.Security.Authorization;
 using Microsoft.Health.Fhir.Core.Models;
 using Microsoft.Health.Fhir.Tests.Common;
 using Microsoft.Health.Fhir.Tests.Common.Mocks;
+using Microsoft.Health.Test.Utilities;
 using NSubstitute;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
@@ -386,6 +387,7 @@ namespace Microsoft.Health.Fhir.Core.UnitTests.Features.Resources
                 isDeleted,
                 null,
                 null,
+                null,
                 null);
         }
 
@@ -396,6 +398,7 @@ namespace Microsoft.Health.Fhir.Core.UnitTests.Features.Resources
                 _rawResourceFactory.Create(resource),
                 new ResourceRequest(HttpMethod.Put, "http://fhir"),
                 isDeleted,
+                null,
                 null,
                 null,
                 null);
